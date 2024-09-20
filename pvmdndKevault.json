@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "where": {
+      "value": "uksouth"
+    },
+    "env": {
+      "value": "prod"
+    },
+    "keyVaultName": {
+      "value": "alamVmsKeyVault1"
+    },
+    "objectId": {
+      "value": "d919bed0-a1da-47e1-92fe-68e47f4ede6a"
+    },
+    "adminUsername": {
+      "value": "vmuser"
+    },
+    "adminPassword": {
+      "value": "Welcome2Code"
+    },
+    "vmSizes": {
+      "value": [
+        "Standard_DS1_v2",
+        "Standard_DS1_v2",
+        "Standard_DS1_v2"
+      ]
+    },
+    "vmNames": {
+      "value": [
+        "winvm1",
+        "winvm2",
+        "winvm3"
+      ]
+    }
+  }
+}
