@@ -1,11 +1,15 @@
 // Define parameters for VM configuration
 param env string 
-param where string 
+param location string 
 param vmNames array
 param vmSizes array
 param keyVaultName string
 param adminUsername string
 param objectId string
+param bpublicIpName string
+param firewallPublicIpName string
+param hvnet string
+param svnet string
 @secure()
 param adminPassword string
 
@@ -30,85 +34,36 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
     ]
   }
 }
-// Define the virtual network
-resource vnet 'Microsoft.Network/virtualNetworks@2023-02-01' = {
-  name: 'winVNet'
-  location: resourceGroup().location
-  properties: {
-    addressSpace: {
-      addressPrefixes: ['192.168.57.0/24']
-    }
-    subnets: [
-      {
-        name: 'winSubnet'
-        properties: {
-          addressPrefix: '192.168.57.0/28'
-        }
-      }
-    ]
-  }
+module vmIP 'mvnetandsubnets.bicep' = { params: {
+  location: location
+  bpublicIpName: bpublicIpName
+  firewallPublicIpName: firewallPublicIpName
+  hvnet: hvnet
+  svnet: svnet
 }
-
+  name: 'virtualMachineIP'
+ }
 // Define network interfaces and virtual machines in a loop
 resource nics 'Microsoft.Network/networkInterfaces@2023-02-01' = [for (vmName, i) in vmNames: {
   name: '${vmName}-nic'
-  location: resourceGroup().location
+  location: location
   properties: {
     ipConfigurations: [
       {
-        name: 'ipconfig1'
+        name: '${vmName}-ipconfig'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
-          publicIPAddress: {
-            id: publicIPs[i].id
-          }
-          subnet: {
-            id: '${vnet.id}/subnets/winSubnet'
-            properties: {
-            networkSecurityGroup: {
-              id: nsg.id  // Attach the NSG to the subnet
+            subnet: {
+            id: vmIP.outputs.ssubnetIds[i].resourceId
             }
-          }
-          }
-        }
+              }
       }
     ]
   }
 }]
-resource publicIPs 'Microsoft.Network/publicIPAddresses@2023-02-01' = [for (vmName, i) in vmNames: {
-  name: '${vmName}-pubip'
-  location: resourceGroup().location
-  properties: {
-    publicIPAllocationMethod: 'Dynamic'
-      }
-  }
-]
-
-// Network Security Group (NSG)
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-02-01' = {
-  name: 'winNSG'
-  location: resourceGroup().location
-  properties: {
-    securityRules: [
-      {
-        name: 'allow-rdp'
-        properties: {
-          priority: 1000
-          direction: 'Inbound'
-          access: 'Allow'
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          destinationPortRange: '3389'
-          sourceAddressPrefix: '*'
-          destinationAddressPrefix: '*'
-        }
-      }
-    ]
-  }
-}
 resource vms 'Microsoft.Compute/virtualMachines@2023-03-01' = [for (vmName, i) in vmNames: {
-  name: '${vmName}-${env}-${where}'
-  location: resourceGroup().location
+  name: '${vmName}-${env}-${location}'
+  location: location
   properties: {
     hardwareProfile: {
       vmSize: vmSizes[i]  // Use the corresponding VM size from the array

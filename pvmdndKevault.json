@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "where": {
+    "location": {
       "value": "uksouth"
     },
     "env": {
@@ -20,6 +20,24 @@
     "adminPassword": {
       "value": "Welcome2Code"
     },
+    "firewallName": {
+      "value": "prod-firewall1"
+    },
+    "bastionName": {
+      "value": "prod-bastion"
+    },
+    "hvnet": {
+      "value": "hub-vnet"
+    },
+    "svnet": {
+      "value": "spoke-vnet"
+    },
+    "bpublicIpName": {
+      "value": "bastionPublicIP"
+    },
+    "firewallPublicIpName": {
+      "value": "firewallPublicIP"
+    },
     "vmSizes": {
       "value": [
         "Standard_DS1_v2",
@@ -34,5 +52,6 @@
         "winvm3"
       ]
     }
+
   }
 }
