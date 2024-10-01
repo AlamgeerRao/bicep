@@ -3,9 +3,7 @@ param env string
 param location string 
 param vmNames array
 param vmSizes array
-param keyVaultName string
 param adminUsername string
-param objectId string
 param bpublicIpName string
 param firewallPublicIpName string
 param hvnet string
@@ -13,27 +11,7 @@ param svnet string
 @secure()
 param adminPassword string
 
-// Create a Key Vault
-resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
-  name: keyVaultName
-  location: resourceGroup().location
-  properties: {
-    sku: {
-      family: 'A'
-      name: 'standard'
-    }
-    tenantId: subscription().tenantId
-    accessPolicies: [
-      {
-        tenantId: subscription().tenantId
-        objectId: objectId
-        permissions: {
-          secrets: ['get', 'list', 'set', 'delete']
-        }
-      }
-    ]
-  }
-}
+
 module vmIP 'mvnetandsubnets.bicep' = { params: {
   location: location
   bpublicIpName: bpublicIpName
@@ -43,7 +21,7 @@ module vmIP 'mvnetandsubnets.bicep' = { params: {
 }
   name: 'virtualMachineIP'
  }
-// Define network interfaces and virtual machines in a loop
+ // Define network interfaces and virtual machines in a loop
 resource nics 'Microsoft.Network/networkInterfaces@2023-02-01' = [for (vmName, i) in vmNames: {
   name: '${vmName}-nic'
   location: location
@@ -100,21 +78,9 @@ resource vms 'Microsoft.Compute/virtualMachines@2023-03-01' = [for (vmName, i) i
     }
   }
   }]
-// Store VM credentials in Key Vault as secrets
-resource vmUsernameSecret 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = [for (vmName, i) in vmNames: {
-  parent: keyVault
-  name: '${vmName}-${env}-adminUsername'
-  properties: {
-    value: adminUsername
+
+output vmIds array = [
+  for (vmName, i) in vmNames: {
+    id:vms[i].id
   }
-}]
-
-resource vmPasswordSecret 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = [for (vmName, i) in vmNames: {
-  parent: keyVault
-  name: '${vmName}-${env}-adminPassword'
-  properties: {
-    value: adminPassword
-  }
-}]
-
-
+]

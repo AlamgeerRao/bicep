@@ -21,22 +21,44 @@ module vnets 'mvnetandsubnets.bicep' = { params: {
   hvnet: hvnet
   svnet: svnet
 }
-  name: 'virtual-network'
+  name: 'virtual-network-main'
  }
- module firewall  'mfirewallandbastion.bicep' = { params : {
+ module firewall  'mfirewall.bicep' = {
+  name: 'firewall-main'
+  params: {
     location: location
+    bpublicIpName: bpublicIpName
+    firewallName: firewallName
+    firewallPublicIpName: firewallPublicIpName
+    hvnet: hvnet
+    svnet: svnet
+  }
+ }
+ module bastion 'mbastion.bicep' = {
+  name: 'bastion-deployment-main'
+  params: {
+    location: location
+    bastionName: bastionName
     bpublicIpName: bpublicIpName
     firewallPublicIpName: firewallPublicIpName
     hvnet: hvnet
     svnet: svnet
-    bastionName: bastionName
-    firewallName: firewallName
   }
- 
- name: 'firewall-bastion'
  }
- module virtualmachine 'mvmandkeyvault.bicep' = {
-  name: 'vm-keyvault'
+ module keyvault 'mkeyvault.bicep' = {
+  name: 'keyvault-deployment-main'
+  params: {
+    adminPassword: adminPassword
+    adminUsername: adminUsername
+    env:  env
+    keyVaultName: keyVaultName
+    objectId: objectId
+    vmNames: vmNames
+  }
+ }
+   
+ module virtualmachine 'mvirtualmachines.bicep' = {
+  name: 'vm-keyvault-main'
   params: {
     location: location
     adminPassword: adminPassword
@@ -45,11 +67,10 @@ module vnets 'mvnetandsubnets.bicep' = { params: {
     env: env
     firewallPublicIpName: firewallPublicIpName
     hvnet: hvnet
-    keyVaultName: keyVaultName
-    objectId: objectId
     svnet: svnet
     vmNames: vmNames
     vmSizes: vmSizes
   }
  
  }
+ 

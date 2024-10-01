@@ -3,8 +3,7 @@ param bpublicIpName string
 param firewallPublicIpName string
 param hvnet string
 param svnet string
-param firewallName string = '${location}-prod-firewall1'
-param bastionName string = '${location}-prod-bastion'
+param firewallName string 
 
 
 module fpublicIP 'mvnetandsubnets.bicep' = { params: {
@@ -14,7 +13,7 @@ module fpublicIP 'mvnetandsubnets.bicep' = { params: {
   hvnet: hvnet
   svnet: svnet
 }
-  name: 'firewallPublicIP'
+  name: 'firewall'
 }
 resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
   name: firewallName
@@ -33,25 +32,6 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
           }
           publicIPAddress: {
             id: fpublicIP.outputs.fpubip
-          }
-        }
-      }
-    ]
-  }
-}
-resource bastionHost 'Microsoft.Network/bastionHosts@2021-05-01' = {
-  name: bastionName
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'bastionIPConfig'
-        properties: {
-          subnet: {
-            id: fpublicIP.outputs.hsubnetIds[1].resourceId
-          }
-          publicIPAddress: {
-            id: fpublicIP.outputs.bpubip
           }
         }
       }
