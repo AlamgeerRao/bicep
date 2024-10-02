@@ -8,6 +8,7 @@ param bpublicIpName string
 param firewallPublicIpName string
 param hvnet string
 param svnet string
+param vmsubnetid string
 @secure()
 param adminPassword string
 
@@ -32,7 +33,8 @@ resource nics 'Microsoft.Network/networkInterfaces@2023-02-01' = [for (vmName, i
         properties: {
           privateIPAllocationMethod: 'Dynamic'
             subnet: {
-            id: vmIP.outputs.ssubnetIds[i].resourceId
+            //id: vmIP.outputs.ssubnetIds[i].resourceId
+            id: vmsubnetid
             }
               }
       }

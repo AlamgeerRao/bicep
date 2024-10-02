@@ -13,6 +13,7 @@ param firewallPublicIpName string
 param firewallName string 
 param bastionName string 
 param bpublicIpName string
+param vmsubnetid string
 
 module vnets 'mvnetandsubnets.bicep' = { params: {
   location: location
@@ -58,7 +59,7 @@ module vnets 'mvnetandsubnets.bicep' = { params: {
  }
    
  module virtualmachine 'mvirtualmachines.bicep' = {
-  name: 'vm-keyvault-main'
+  name: 'vm-main'
   params: {
     location: location
     adminPassword: adminPassword
