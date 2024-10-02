@@ -13,7 +13,7 @@ param firewallPublicIpName string
 param firewallName string 
 param bastionName string 
 param bpublicIpName string
-param vmsubnetid string
+//param vmsubnetid array
 
 module vnets 'mvnetandsubnets.bicep' = { params: {
   location: location
@@ -71,6 +71,9 @@ module vnets 'mvnetandsubnets.bicep' = { params: {
     svnet: svnet
     vmNames: vmNames
     vmSizes: vmSizes
+    //    id: vnets.outputs.ssubnetIds[i].resourceId
+    //vmsubnetid: vnets.outputs.ssubnetIds[i].resourceId
+
   }
  
  }
